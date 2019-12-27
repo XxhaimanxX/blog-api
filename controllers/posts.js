@@ -1,12 +1,13 @@
 const ErrorResponse = require("../utils/errorResponse");
 const Post = require("../models/Post");
+const Comment = require("../models/Comment");
 const asyncHandler = require("../middleware/async");
 
 //@desc      Get all posts
 //@route     GET /api/v1/posts
 //@access    Public
 exports.getPosts = asyncHandler(async (req, res, next) => {
-  const posts = await Post.find();
+  const posts = await Post.find().populate("comments");
   res.status(200).json({ success: true, data: posts });
 });
 
@@ -14,7 +15,7 @@ exports.getPosts = asyncHandler(async (req, res, next) => {
 //@route     GET /api/v1/posts/:id
 //@access    Public
 exports.getPost = asyncHandler(async (req, res, next) => {
-  const post = await Post.findById(req.params.id);
+  const post = await Post.findById(req.params.id).populate("comments");
   res.status(200).json({ success: true, data: post });
 });
 
@@ -48,7 +49,10 @@ exports.updatePost = asyncHandler(async (req, res, next) => {
 //@route     DELETE /api/v1/posts
 //@access    Private
 exports.deletePosts = asyncHandler(async (req, res, next) => {
+  console.log("Deleting Posts And Comments...");
   await Post.deleteMany();
+  await Comment.deleteMany();
+  console.log("All Posts And Comments Deleted!");
   res.status(200).json({ success: true, msg: "All posts removed!" });
 });
 
@@ -61,7 +65,7 @@ exports.deletePost = asyncHandler(async (req, res, next) => {
   if (!post) {
     next(new ErrorResponse(`Post not found with id of ${req.params.id}`, 404));
   }
-  await Post.deleteOne({ _id: req.params.id });
+  await post.remove({ _id: req.params.id });
   res
     .status(200)
     .json({ success: true, msg: `Post with the id ${req.params.id} removed!` });

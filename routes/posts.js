@@ -8,9 +8,13 @@ const {
   deletePosts
 } = require("../controllers/posts");
 
-const Post = require("../models/Post");
+//Include other resource routers
+const commentsRouter = require("./comments");
 
 const router = express.Router();
+
+//Re-route into other resource routers
+router.use("/:postId/comments", commentsRouter);
 
 router
   .route("/")

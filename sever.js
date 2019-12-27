@@ -2,12 +2,14 @@ const express = require("express");
 const path = require("path");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
+const errorHandler = require("./middleware/error");
 
 //Load env vars
 dotenv.config({ path: "./config/config.env" });
 
 // Route files
 const posts = require("./routes/posts");
+const comments = require("./routes/comments");
 
 //Connect to Database
 connectDB();
@@ -26,6 +28,9 @@ app.use(express.json());
 
 // Mount routers
 app.use("/api/v1/posts", posts);
+app.use("/api/v1/comments", comments);
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
