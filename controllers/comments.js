@@ -7,8 +7,9 @@ const Post = require("../models/Post");
 //@route     POST /api/v1/posts/:postId/comments
 //@access    Private
 exports.addComment = asyncHandler(async (req, res, next) => {
+  //Add the post and user to the comment body
   req.body.post = req.params.postId;
-  // req.body.user = req.user.id;
+  req.body.user = req.user.id;
 
   const post = await Post.findById(req.params.postId);
 
@@ -62,6 +63,13 @@ exports.updateComment = asyncHandler(async (req, res, next) => {
     );
   }
 
+  //Make sure user is comment owner
+  if (comment.user.toString() !== req.user.id && req.user.role !== "admin") {
+    return next(
+      new ErrorResponse("Must be owner of the comment in order to update", 401)
+    );
+  }
+
   comment = await Comment.findByIdAndUpdate(req.params.id, { ...req.body });
   res.status(200).json({ success: true, data: comment });
 });
@@ -80,13 +88,20 @@ exports.deleteComment = asyncHandler(async (req, res, next) => {
     );
   }
 
+  //Make sure user is comment owner
+  if (comment.user.toString() !== req.user.id && req.user.role !== "admin") {
+    return next(
+      new ErrorResponse("Must be owner of the comment in order to delete", 401)
+    );
+  }
+
   await Comment.findByIdAndDelete(req.params.id);
   res.status(200).json({ success: true, msg: `Comment Removed!` });
 });
 
 //@desc      Delete all comments
 //@route     DELETE /api/v1/comments
-//@access    Private
+//@access    Private (Admin)
 exports.deleteComments = asyncHandler(async (req, res, next) => {
   await Comment.deleteMany();
   res.status(200).json({ success: true, msg: `Comments Removed!` });

@@ -13,19 +13,21 @@ const commentsRouter = require("./comments");
 
 const router = express.Router();
 
+const { protect, authorize } = require("../middleware/auth");
+
 //Re-route into other resource routers
 router.use("/:postId/comments", commentsRouter);
 
 router
   .route("/")
   .get(getPosts)
-  .post(createPost)
-  .delete(deletePosts);
+  .post(protect, authorize("publisher", "admin"), createPost)
+  .delete(protect, authorize("admin"), deletePosts);
 
 router
   .route("/:id")
   .get(getPost)
-  .put(updatePost)
-  .delete(deletePost);
+  .put(protect, authorize("publisher", "admin"), updatePost)
+  .delete(protect, authorize("publisher", "admin"), deletePost);
 
 module.exports = router;
