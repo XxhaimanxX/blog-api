@@ -11,6 +11,7 @@ dotenv.config({ path: "./config/config.env" });
 const posts = require("./routes/posts");
 const comments = require("./routes/comments");
 const auth = require("./routes/auth");
+const users = require("./routes/users");
 
 //Connect to Database
 connectDB();
@@ -34,6 +35,7 @@ app.use(express.json());
 app.use("/api/v1/posts", posts);
 app.use("/api/v1/comments", comments);
 app.use("/api/v1/auth", auth);
+app.use("/api/v1/users", users);
 
 app.use(errorHandler);
 
